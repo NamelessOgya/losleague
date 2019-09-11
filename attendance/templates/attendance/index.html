@@ -1,0 +1,9 @@
+
+
+<a>チーム{{user.username}}</a>
+<a>登録する試合日を選択</a>
+<ul>
+    {%  for key, value in dic.items %}
+    <li><a href = register/{{user.username}}/{{ key }}/> {{ value }} </a></li>
+    {% endfor %}
+</ul>

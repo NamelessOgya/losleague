@@ -1,0 +1,59 @@
+<a>チーム{{user.username}}様</a>
+<a>{{date}}</a>
+{% for member in team_member %}
+    <li>{{ member }}</li>
+{% endfor %}
+
+</ul>
+<form action="/attendance/{{user.username}}/{{date}}/result" methon="get">
+    {% csrf_token %}
+    <div>
+        <label>一番手</label>
+        <select name="first" value="">
+            {% for member in team_member %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        <label>二番手</label>
+        <select name="second" value="">
+            {% for member in team_member %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        <label>三番手</label>
+        <select name="third" value="">
+            {% for member in team_member %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        <label>四番手</label>
+        <select name="fourth" value="">
+            {% for member in team_member %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        <label>五番手</label>
+        <select name="fifth" value="">
+            {% for member in team_member %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        <label>補欠</label>
+        <select name="hoketsu" value="">
+            {% for member in team_member %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+     <input type="submit" value="送信">
+</form>
