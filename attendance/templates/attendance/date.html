@@ -5,7 +5,7 @@
 {% endfor %}
 
 </ul>
-<form action="/attendance/{{user.username}}/{{date}}/result" methon="get">
+<form action="/attendance/{{date}}/result" methon="post">
     {% csrf_token %}
     <div>
         <label>一番手</label>

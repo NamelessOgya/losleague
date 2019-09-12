@@ -37,15 +37,15 @@ def index(request):
 
 
 @login_required
-def date(request, date, team):
-    x = Team.objects.filter(team_name=team).get()
+def date(request, date):
+    x = Team.objects.filter(team_name=request.user).get()
     mylist = []
     for m in x.player_set.all():
         mylist.append(m.player_name)
 
     return render(request, 'attendance/date.html', {"date": date, "team_member": mylist})
 @login_required
-def result(request, date, team):
+def result(request, date):
     # フォーム送信された値を受け取る
     first = request.GET.get('first')
     second = request.GET.get('second')
@@ -56,9 +56,9 @@ def result(request, date, team):
     #データベースに変更を加えるぉ
     m = Match.objects.all()
     match_instance = m.get(pk=int(date))
-    Registered.objects.create(date=match_instance, team=team, first=first, second=second, third=third, fourth= fourth, fifth=fifth, hoketsu=hoketsu)
+    Registered.objects.create(date=match_instance, team=request.user, first=first, second=second, third=third, fourth= fourth, fifth=fifth, hoketsu=hoketsu)
 
-    r = Registered.objects.filter(team=team)
+    r = Registered.objects.filter(team=request.user)
     m = Match.objects.all()
     dic = {}
     for x in m:  # Matchをforで回して、そのなかで一番古い登録データからfirst,...を抜く。未登録の場合は..
