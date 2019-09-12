@@ -1,0 +1,7 @@
+
+<a>マッチング試合日を選択</a>
+<ul>
+    {%  for key, value in dic.items %}
+    <li><a href = matchlist/{{ key }}/> {{ value }} </a></li>
+    {% endfor %}
+</ul>

@@ -9,7 +9,7 @@ from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 
-from .models import Match, Player, Team, Registerd, Registered
+from .models import Match, Player, Team, Registerd, Registered, Table
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 def home(request):
@@ -18,9 +18,48 @@ def home(request):
 def logout(request):
     return render(request, 'logout.html')
 
+def listdate(request):
+        m = Match.objects.all().filter(match_table_release=True)
+        dic = {}
+        for x in m:
+            id = x.id
+            d = x.match_date
+            year = d.year
+            month = d.month
+            day = d.day
+            date = str(year)+"/"+str(month)+"/"+str(day)
+            dic[id] = date
+
+        context = {'dic': dic}
+
+        return render(request, 'attendance/listdate.html', context)
+
+
+
+def list(request, date):
+    t = Table.objects.filter(date=Match.objects.filter(pk=date).get())
+
+    dic = {}
+    c = 0
+    for x in t:
+        c+=1
+        try:
+            r1 = Registered.objects.filter(date=x.date, team=x.team1).order_by('-pk').first()
+            r2 = Registered.objects.filter(date=x.date, team=x.team2).order_by('-pk').first()
+            order1 = [r1.first, r1.second, r1.third, r1.fourth, r1.fifth, r1.hoketsu]
+            order2 = [r2.first, r2.second, r2.third, r2.fourth, r2.fifth, r2.hoketsu]
+            dic[str(c)+x.team1.team_name+" vs "+x.team2.team_name] = {x.team1.team_name: order1, x.team2.team_name: order2}
+        except AttributeError:
+            dic[str(c)] = {c: "", c: ""}
+    return render(request, 'attendance/table.html', {'dic': dic})
+
+
+
+
+
 @login_required
 def index(request):
-    m = Match.objects.all()
+    m = Match.objects.all().filter(register_release=True)
     dic = {}
     for x in m:
         id = x.id
@@ -82,6 +121,8 @@ def result(request, date):
             pass
 
     return render(request, 'attendance/result.html', {'dic': dic})
+
+
 
 
 
