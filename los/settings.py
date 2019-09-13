@@ -124,5 +124,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # ログイン後トップページにリダイレクト
-LOGIN_REDIRECT_URL = '/attendance/index'
+LOGIN_REDIRECT_URL = '/attendance/user/'
 LOGOUT_REDIRECT_URL = '/logout'

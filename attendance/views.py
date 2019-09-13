@@ -9,11 +9,20 @@ from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 
-from .models import Match, Player, Team, Registerd, Registered, Table
+from .models import Match, Player, Team, Registerd, Registered, Table, Reported
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+def leader():
+    return ["エルフ","ロイヤル", "ウィッチ", "ドラゴン", "ネクロマンサー", "ビショップ", "ネメシス"]
+
+
 
 def home(request):
     return render(request, 'home.html')
+
+
+def user (request):
+    return render(request, 'attendance/user.html')
 
 def logout(request):
     return render(request, 'logout.html')
@@ -53,10 +62,6 @@ def list(request, date):
             dic[str(c)] = {c: "", c: ""}
     return render(request, 'attendance/table.html', {'dic': dic})
 
-
-
-
-
 @login_required
 def index(request):
     m = Match.objects.all().filter(register_release=True)
@@ -72,8 +77,6 @@ def index(request):
 
     context = {'dic': dic}
     return render(request, 'attendance/index.html', context)
-
-
 
 @login_required
 def date(request, date):
@@ -122,7 +125,74 @@ def result(request, date):
 
     return render(request, 'attendance/result.html', {'dic': dic})
 
+@login_required
+def reportdate(request):
+    m = Match.objects.all()#あとでfilterつける
+    dic = {}
+    for x in m:
+        id = x.id
+        d = x.match_date
+        year = d.year
+        month = d.month
+        day = d.day
+        date = str(year) + "/" + str(month) + "/" + str(day)
+        dic[id] = date
 
+    context = {'dic': dic}
 
+    return render(request, 'attendance/reportdate.html', context)
+@login_required
+def report(request, date):
 
+    r = Registered.objects.filter(team = request.user).filter(date=Match.objects.all().filter(pk=date).get()).order_by('-pk').get()
+    mylist = [r.first, r.second, r.third, r.fourth, r.fifth, r.hoketsu]
+    context = {'team_member': mylist, 'winlose': ["win", "lose"], 'leader': leader(), 'date': date}
+    return render(request, 'attendance/report.html', context)
+@login_required
+def report_register(request,date):
+    team = request.user
+    date = Match.objects.filter(pk=date).order_by('-pk').first()
+
+    first = request.GET.get('first')
+    second = request.GET.get('second')
+    third = request.GET.get('third')
+    fourth = request.GET.get('fourth')
+    fifth = request.GET.get('fifth')
+
+    firstl = request.GET.get('firstl')
+    secondl = request.GET.get('secondl')
+    thirdl = request.GET.get('thirdl')
+    fourthl = request.GET.get('fourthl')
+    fifthl = request.GET.get('fifthl')
+
+    firstwl = request.GET.get('firstwl')
+    secondwl = request.GET.get('secondwl')
+    thirdwl = request.GET.get('thirdwl')
+    fourthwl = request.GET.get('fourthwl')
+    fifthwl = request.GET.get('fifthwl')
+
+    Reported.objects.create(
+    date=date,
+    team=team,
+
+    first = first,
+    second = second,
+    third = third,
+    fourth = fourth,
+    fifth = fifth,
+
+    firstl = firstl,
+    secondl =secondl,
+    thirdl = thirdl,
+    fourthl = fourthl,
+    fifthl = fifthl,
+
+    firstwl = firstwl,
+    secondwl = secondwl,
+    thirdwl = thirdwl,
+    fourthwl = fourthwl,
+    fifthwl = fifthwl,
+    )
+
+    return render(request, 'attendance/report_request')
 

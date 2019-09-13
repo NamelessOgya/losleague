@@ -1,0 +1,6 @@
+<a>結果登録日を選択</a>
+<ul>
+    {%  for key, value in dic.items %}
+    <li><a href = report/{{ key }}/> {{ value }} </a></li>
+    {% endfor %}
+</ul>
