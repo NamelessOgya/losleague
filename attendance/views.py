@@ -144,7 +144,7 @@ def reportdate(request):
 @login_required
 def report(request, date):
 
-    r = Registered.objects.filter(team = request.user).filter(date=Match.objects.all().filter(pk=date).get()).order_by('-pk').get()
+    r = Registered.objects.filter(team = request.user).filter(date=Match.objects.all().filter(pk=date).get()).order_by('-pk').first()
     mylist = [r.first, r.second, r.third, r.fourth, r.fifth, r.hoketsu]
     context = {'team_member': mylist, 'winlose': ["win", "lose"], 'leader': leader(), 'date': date}
     return render(request, 'attendance/report.html', context)

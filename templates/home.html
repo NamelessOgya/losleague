@@ -1,2 +1,47 @@
-<a href = /accounts/login>オーダー登録/結果登録</a>
-<br><a href = /attendance/match_list>対戦表確認</a></br>
+<html>
+{% extends 'base.html' %}
+{% load static %}
+    {% block content %}
+<!--     テーマ画像-->
+            <div class = "theme">
+                <img src = "{% static 'los/home.jpg' %}" class="home">
+            </div>
+<!--タブメニュー。参考url...https://bagelee.com/design/css/create_tabs_using_only_css/-->
+            <div class="tabs">
+              <input id="all" type="radio" name="tab_item" checked>
+              <label class="tab_item" for="all">チーム順位</label>
+              <input id="programming" type="radio" name="tab_item">
+              <label class="tab_item" for="programming">リーダー勝率</label>
+              <input id="design" type="radio" name="tab_item">
+              <label class="tab_item" for="design">個人成績上位者</label>
+             <div class="tab_content" id="all_content">
+                <div class="tab_content_description">
+                  <p class="c-txtsp">チーム順位</p>
+                </div>
+              </div>
+                <div class="tab_content" id="programming_content">
+                    <div class="tab_content_description">
+                     <p class="c-txtsp">リーダー勝率</p>
+                    </div>
+                </div>
+                <div class="tab_content" id="design_content">
+                <div class="tab_content_description">
+                    <p class="c-txtsp">個人成績</p>
+                    </div>
+                     </div>
+                    </div>
+
+<!--            コンテンツ一単位-->
+            <div class = "box">
+                <div class = "tytlebox">
+                    <p>新シーズン開幕!</p>
+                </div>
+                <div class = "contentbox">
+                    <p>おんぎゃぁぁぁあぁぁ</p>
+                    <p>あああああああ</p>
+                    <p>きたぁぁぁぁぁぁぁ</p>
+                </div>
+            </div>
+<!--コンテンツ1単位ここまで-->
+{% endblock %}
+</html>

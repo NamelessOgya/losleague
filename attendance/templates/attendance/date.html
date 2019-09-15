@@ -1,10 +1,13 @@
-<a>チーム{{user.username}}様</a>
-<a>{{date}}</a>
-{% for member in team_member %}
-    <li>{{ member }}</li>
-{% endfor %}
+{% extends 'base.html' %}
+{% load static %}
+    {% block content %}
 
-</ul>
+<div class = "box">
+    <div class = "tytlebox">
+        <p>登録</p>
+    </div>
+    <div class = "contentbox">
+
 <form action="/attendance/{{date}}/result" methon="post">
     {% csrf_token %}
     <div>
@@ -57,3 +60,9 @@
     </div>
      <input type="submit" value="送信">
 </form>
+    </div>
+            </div>
+
+
+
+{% endblock %}
