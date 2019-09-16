@@ -25,33 +25,6 @@ def strdate(d):
 
 
 def home(request):
-# Teamポイントの初期化
-    for t in Team.objects.all():
-        t.point = 0
-        t.grosspoint = 0
-        t.save()
-
-# point,grosspointの再計算
-    for m in Match.objects.all():
-        try:
-            for t in Table.objects.filter(date=m):
-                point1 = TeamResult.objects.filter(date=m, team=t.team1.team_name).order_by("-pk").first().point
-                team1 = t.team1.team_name
-                point2 = TeamResult.objects.filter(date=m, team=t.team2.team_name).order_by("-pk").first().point
-                team2 = t.team2.team_name
-                x1 = Team.objects.filter(team_name = team1).order_by("-pk").first()
-                x1.grosspoint += point1
-
-                x2 = Team.objects.filter(team_name=team2).order_by("-pk").first()
-                x2.grosspoint += point2
-                if point1 >= 3:
-                    x1.point += 1
-                else:
-                    x2.point += 1
-                x1.save()
-                x2.save()
-        except AttributeError:
-            pass
 # チームポイント順で並び替えて上位チームを選抜
     dic = {}
     for t in Team.objects.all().order_by('-point')[:5]:
@@ -60,8 +33,7 @@ def home(request):
         grosspoint = t.grosspoint
         dic[name] = {"name": name, "point": point, "grosspoint": grosspoint}
 
-
-    return render(request, 'home.html',{"dic": dic})
+    return render(request, 'home.html', {"dic": dic})
 
 
 def user (request):
@@ -229,7 +201,7 @@ def report_register(request,date):
     fourthwl = fourthwl,
     fifthwl = fifthwl,
     )
-#TeamResultに追加
+#PlayerResultとTeamResultに追加
     teamp = 0
     for d in dics:
         PlayerResult.objects.create(date = date, player = Player.objects.filter(player_name=d["player"]).order_by('-pk').first(), leader = d["leader"], wl = d["winlose"])
@@ -237,7 +209,137 @@ def report_register(request,date):
             teamp+=1
 
     TeamResult.objects.create(date=date, team=team, point = teamp)
+    for m in Match.objects.all():
+        try:
+            for t in Table.objects.filter(date=m):
+                point1 = TeamResult.objects.filter(date=m, team=t.team1.team_name).order_by("-pk").first().point
+                team1 = t.team1.team_name
+                point2 = TeamResult.objects.filter(date=m, team=t.team2.team_name).order_by("-pk").first().point
+                team2 = t.team2.team_name
+                x1 = Team.objects.filter(team_name = team1).order_by("-pk").first()
+                x1.grosspoint += point1
 
+                x2 = Team.objects.filter(team_name=team2).order_by("-pk").first()
+                x2.grosspoint += point2
+                if point1 >= 3:
+                    x1.point += 1
+                else:
+                    x2.point += 1
+                x1.save()
+                x2.save()
+        except AttributeError:
+            pass
+
+    # Teamポイントの初期化
+    for t in Team.objects.all():
+        t.point = 0
+        t.grosspoint = 0
+        t.save()
+
+    #Playerポイントの初期化
+    for p in Player.objects.all():
+        p.e_win = 0
+        p.e_lose = 0
+        p.nm_win = 0
+        p.nm_lose = 0
+        p.d_win = 0
+        p.d_lose = 0
+        p.b_win = 0
+        p.b_lose = 0
+        p.r_win = 0
+        p.r_lose = 0
+        p.v_win = 0
+        p.v_lose = 0
+        p.w_win = 0
+        p.w_lose = 0
+        p.nc_win = 0
+        p.nc_lose = 0
+        p.save()
+
+    # point,grosspointの再計算
+    for m in Match.objects.all():
+        try:
+            for t in Table.objects.filter(date=m):
+                    point1 = TeamResult.objects.filter(date=m, team=t.team1.team_name).order_by("-pk").first().point
+                    team1 = t.team1.team_name
+                    point2 = TeamResult.objects.filter(date=m, team=t.team2.team_name).order_by("-pk").first().point
+                    team2 = t.team2.team_name
+                    x1 = Team.objects.filter(team_name=team1).order_by("-pk").first()
+                    x1.grosspoint += point1
+
+                    x2 = Team.objects.filter(team_name=team2).order_by("-pk").first()
+                    x2.grosspoint += point2
+                    if point1 >= 3:
+                        x1.point += 1
+                    else:
+                        x2.point += 1
+                    x1.save()
+                    x2.save()
+        except AttributeError:
+                pass
+
+# プレイヤーオブジェクトにクラス別戦績を追加
+        for p in Player.objects.all():
+            try:
+                for pr in PlayerResult.objects.filter(date=m, player = p):
+                    if pr.leader=="エルフ":
+                        if pr.wl == "win":
+                            p.e_win += 1
+                            p.save()
+                        else:
+                            p.e_lose += 1
+                            p.save()
+                    elif pr.leader == "ネメシス":
+                        if pr.wl == "win":
+                            p.nm_win += 1
+                            p.save()
+                        else:
+                            p.nm_lose += 1
+                            p.save()
+                    elif pr.leader == "ドラゴン":
+                        if pr.wl == "win":
+                            p.d_win += 1
+                            p.save()
+                        else:
+                            p.d_lose += 1
+                            p.save()
+                    elif pr.leader == "ビショップ":
+                        if pr.wl == "win":
+                            p.b_win += 1
+                            p.save()
+                        else:
+                            p.b_lose += 1
+                            p.save()
+                    elif pr.leader == "ロイヤル":
+                        if pr.wl == "win":
+                            p.r_win += 1
+                            p.save()
+                        else:
+                            p.r_lose += 1
+                            p.save()
+                    elif pr.leader == "ヴァンパイア":
+                        if pr.wl == "win":
+                            p.v_win += 1
+                            p.save()
+                        else:
+                            p.v_lose += 1
+                            p.save()
+                    elif pr.leader == "ウィッチ":
+                        if pr.wl == "win":
+                            p.w_win += 1
+                            p.save()
+                        else:
+                            p.w_lose += 1
+                            p.save()
+                    else:
+                        if pr.wl == "win":
+                            p.nc_win += 1
+                            p.save()
+                        else:
+                            p.nc_lose += 1
+                            p.save()
+            except AttributeError:
+                pass
     return render(request, 'attendance/report_request.html')
 
 def match_result(request):
