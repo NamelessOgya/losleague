@@ -1,7 +1,7 @@
 <html>
 {% extends 'base.html' %}
 {% load static %}
-    {% block content %}
+{% block content %}
 <!--     テーマ画像-->
             <div class = "theme">
                 <img src = "{% static 'los/home.jpg' %}" class="home">
@@ -15,8 +15,25 @@
               <input id="design" type="radio" name="tab_item">
               <label class="tab_item" for="design">個人成績上位者</label>
              <div class="tab_content" id="all_content">
-                <div class="tab_content_description">
-                  <p class="c-txtsp">チーム順位</p>
+                 <div class="tab_content_description">
+                     <table border="1">
+                         <tr>
+                             <th>チーム名</th>
+                             <th>勝利数</th>
+                             <th>勝ち点</th>
+                         </tr>
+
+                     {% for key, value in dic.items %}
+                            <tr>
+                                {% for x, y in value.items %}
+                                <th class="c-txtsp">
+                                 {{ y }}
+                                </th>
+                                {% endfor %}
+                            </tr>
+                    {% endfor %}
+
+                     </table>
                 </div>
               </div>
                 <div class="tab_content" id="programming_content">

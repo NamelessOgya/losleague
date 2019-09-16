@@ -9,16 +9,59 @@ from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 
-from .models import Match, Player, Team, Registerd, Registered, Table, Reported
+from .models import Match, Player, Team, Registerd, Registered, Table, Reported, PlayerResult, TeamResult
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 def leader():
     return ["エルフ","ロイヤル", "ウィッチ", "ドラゴン", "ネクロマンサー", "ビショップ", "ネメシス"]
 
+def strdate(d):
+    year = d.year
+    month = d.month
+    day = d.day
+    return str(year) + "/" + str(month) + "/" + str(day)
+
+
 
 
 def home(request):
-    return render(request, 'home.html')
+# Teamポイントの初期化
+    for t in Team.objects.all():
+        t.point = 0
+        t.grosspoint = 0
+        t.save()
+
+# point,grosspointの再計算
+    for m in Match.objects.all():
+        try:
+            for t in Table.objects.filter(date=m):
+                point1 = TeamResult.objects.filter(date=m, team=t.team1.team_name).order_by("-pk").first().point
+                team1 = t.team1.team_name
+                point2 = TeamResult.objects.filter(date=m, team=t.team2.team_name).order_by("-pk").first().point
+                team2 = t.team2.team_name
+                x1 = Team.objects.filter(team_name = team1).order_by("-pk").first()
+                x1.grosspoint += point1
+
+                x2 = Team.objects.filter(team_name=team2).order_by("-pk").first()
+                x2.grosspoint += point2
+                if point1 >= 3:
+                    x1.point += 1
+                else:
+                    x2.point += 1
+                x1.save()
+                x2.save()
+        except AttributeError:
+            pass
+# チームポイント順で並び替えて上位チームを選抜
+    dic = {}
+    for t in Team.objects.all().order_by('-point')[:5]:
+        name = t.team_name
+        point = t.point
+        grosspoint = t.grosspoint
+        dic[name] = {"name": name, "point": point, "grosspoint": grosspoint}
+
+
+    return render(request, 'home.html',{"dic": dic})
 
 
 def user (request):
@@ -33,11 +76,8 @@ def listdate(request):
         for x in m:
             id = x.id
             d = x.match_date
-            year = d.year
-            month = d.month
-            day = d.day
-            date = str(year)+"/"+str(month)+"/"+str(day)
-            dic[id] = date
+
+            dic[id] = strdate(d)
 
         context = {'dic': dic}
 
@@ -69,11 +109,7 @@ def index(request):
     for x in m:
         id = x.id
         d = x.match_date
-        year = d.year
-        month = d.month
-        day = d.day
-        date = str(year)+"/"+str(month)+"/"+str(day)
-        dic[id] = date
+        dic[id] = strdate(d)
 
     context = {'dic': dic}
     return render(request, 'attendance/index.html', context)
@@ -114,10 +150,7 @@ def result(request, date):
             hoketsu = order.hoketsu
 
             d = x.match_date
-            year = d.year
-            month = d.month
-            day = d.day
-            DDD = str(year) + "/" + str(month) + "/" + str(day)
+            DDD = strdate(d)
             dic[DDD] = {'一番手': first, '二番手': second, '三番手': third, '四番手': fourth, '五番手': fifth,
                            'リザーバー': hoketsu}
         except AttributeError:
@@ -132,11 +165,8 @@ def reportdate(request):
     for x in m:
         id = x.id
         d = x.match_date
-        year = d.year
-        month = d.month
-        day = d.day
-        date = str(year) + "/" + str(month) + "/" + str(day)
-        dic[id] = date
+
+        dic[id] = strdate(d)
 
     context = {'dic': dic}
 
@@ -171,6 +201,12 @@ def report_register(request,date):
     fourthwl = request.GET.get('fourthwl')
     fifthwl = request.GET.get('fifthwl')
 
+    dics = [{"player": first, "leader": firstl, "winlose": firstwl},
+           {"player": second, "leader": secondl, "winlose": secondwl},
+           {"player": third, "leader": thirdl, "winlose": thirdwl},
+           {"player": fourth, "leader": fourthl, "winlose": fourthwl},
+           {"player": fifth, "leader": fifthl, "winlose": fifthwl}]
+# レポートに登録
     Reported.objects.create(
     date=date,
     team=team,
@@ -193,6 +229,34 @@ def report_register(request,date):
     fourthwl = fourthwl,
     fifthwl = fifthwl,
     )
+#TeamResultに追加
+    teamp = 0
+    for d in dics:
+        PlayerResult.objects.create(date = date, player = Player.objects.filter(player_name=d["player"]).order_by('-pk').first(), leader = d["leader"], wl = d["winlose"])
+        if d["winlose"] == "win" :
+            teamp+=1
 
-    return render(request, 'attendance/report_request')
+    TeamResult.objects.create(date=date, team=team, point = teamp)
 
+    return render(request, 'attendance/report_request.html')
+
+def match_result(request):
+    dicts = {}
+    dic = {}
+    for m in Match.objects.all():
+            for t in Table.objects.filter(date=m):
+                try:
+                    point1 = TeamResult.objects.filter(date=m, team=t.team1.team_name).order_by("-pk").first().point
+                    team1 = t.team1.team_name
+                    point2 = TeamResult.objects.filter(date=m, team=t.team2.team_name).order_by("-pk").first().point
+                    team2 = t.team2.team_name
+                    dic[team1+" vs "+team2] = {"team1": team1, "point1": point1,"team2":team2,"point2": point2}
+                except AttributeError:
+                    pass
+            date = strdate(m.match_date)
+            dicts[date] = dic
+            dic = {}
+
+
+
+    return render(request, 'attendance/match_result.html', {'dicts': dicts})

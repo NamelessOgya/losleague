@@ -5,7 +5,9 @@ from django.db import models
 
 class Team(models.Model):
     team_name = models.CharField(max_length=100)
-    team_point = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    point = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    grosspoint = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+
 
     def __str__(self):
         return self.team_name
@@ -13,6 +15,23 @@ class Team(models.Model):
 class Player(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     player_name = models.CharField(max_length=100)
+    point = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    e_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    e_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    nm_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    nm_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    d_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    d_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    b_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    b_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    r_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    r_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    v_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    v_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    w_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    w_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    nc_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    nc_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
 
     def __str__(self):
         return self.player_name
@@ -76,6 +95,17 @@ class Reported(models.Model):
 
     def __str__(self):
         return str(self.date) + "/" + self.team
+
+class PlayerResult(models.Model):
+    date = models.ForeignKey(Match, on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    leader = models.CharField(max_length=100, default="")
+    wl = models.CharField(max_length=100, default="")
+
+class TeamResult(models.Model):
+    date = models.ForeignKey(Match, on_delete=models.CASCADE)
+    team = models.CharField(max_length=100, default="")
+    point = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
 
 
 
