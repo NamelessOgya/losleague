@@ -15,7 +15,8 @@ class Team(models.Model):
 class Player(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     player_name = models.CharField(max_length=100)
-    point = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
     e_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
     e_lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
     nm_win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
@@ -102,10 +103,36 @@ class PlayerResult(models.Model):
     leader = models.CharField(max_length=100, default="")
     wl = models.CharField(max_length=100, default="")
 
+    def __str__(self):
+        return str(self.date) + "/" + self.player
+
+
 class TeamResult(models.Model):
     date = models.ForeignKey(Match, on_delete=models.CASCADE)
     team = models.CharField(max_length=100, default="")
     point = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+
+    def __str__(self):
+        return str(self.date) + "/" + self.team
+
+class ClassWinRate(models.Model):
+    leader = models.CharField(max_length=100, default="")
+    win = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    lose = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    rate = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+    total = models.IntegerField(verbose_name='', blank=True, null=True, default=0)
+
+    def __str__(self):
+        return self.leader
+
+class Blog(models.Model):
+    title = models.CharField(max_length=100, default="")
+    context = models.CharField(max_length=200, default="")
+
+
+
+
+
 
 
 

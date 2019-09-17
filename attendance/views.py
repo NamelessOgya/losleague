@@ -9,11 +9,11 @@ from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 
-from .models import Match, Player, Team, Registerd, Registered, Table, Reported, PlayerResult, TeamResult
+from .models import Match, Player, Team, Registerd, Registered, Table, Reported, PlayerResult, TeamResult, ClassWinRate, Blog
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 def leader():
-    return ["エルフ","ロイヤル", "ウィッチ", "ドラゴン", "ネクロマンサー", "ビショップ", "ネメシス"]
+    return ["エルフ","ロイヤル", "ウィッチ", "ドラゴン", "ヴァンパイア", "ネクロマンサー", "ビショップ", "ネメシス"]
 
 def strdate(d):
     year = d.year
@@ -26,15 +26,39 @@ def strdate(d):
 
 def home(request):
 # チームポイント順で並び替えて上位チームを選抜
-    dic = {}
+    dic1 = {}
+    dic2 = {}
+    dic3 = {}
+    dic4 = {}
+#get top5 teams
     for t in Team.objects.all().order_by('-point')[:5]:
+
         name = t.team_name
         point = t.point
         grosspoint = t.grosspoint
-        dic[name] = {"name": name, "point": point, "grosspoint": grosspoint}
+        dic1[name] = {"name": name, "point": point, "grosspoint": grosspoint}
+# 勝利数トップ5を抽出
+    for p in Player.objects.all().order_by('-win')[:5]:
 
-    return render(request, 'home.html', {"dic": dic})
+        name = p.player_name
+        win = p.win
+        lose = p.lose
+        dic2[name] = {"name": name, "win": win, "lose": lose}
 
+# リーダーごとの勝利数を回収
+    for c in ClassWinRate.objects.all():
+        name = c.leader
+        rate = c.rate
+        total = c.total
+        dic3[name] = {"name": name, "rate": rate, "total": total}
+
+#ブログ内容を回収
+    for b in Blog.objects.all():
+        title = b.title
+        context = b.context
+        dic4[title]= {"title": title, "context": context}
+
+    return render(request, 'home.html', {"dic1": dic1, "dic2": dic2, "dic3": dic3, "dic4": dic4})
 
 def user (request):
     return render(request, 'attendance/user.html')
@@ -238,6 +262,8 @@ def report_register(request,date):
 
     #Playerポイントの初期化
     for p in Player.objects.all():
+        p.win = 0
+        p.lose = 0
         p.e_win = 0
         p.e_lose = 0
         p.nm_win = 0
@@ -255,6 +281,13 @@ def report_register(request,date):
         p.nc_win = 0
         p.nc_lose = 0
         p.save()
+#ClassWinRateの初期化
+    for c in ClassWinRate.objects.all():
+        c.win = 0
+        c.lose = 0
+        c.rate = 0
+        c.total = 0
+        c.save()
 
     # point,grosspointの再計算
     for m in Match.objects.all():
@@ -281,65 +314,158 @@ def report_register(request,date):
 # プレイヤーオブジェクトにクラス別戦績を追加
         for p in Player.objects.all():
             try:
-                for pr in PlayerResult.objects.filter(date=m, player = p):
-                    if pr.leader=="エルフ":
-                        if pr.wl == "win":
-                            p.e_win += 1
-                            p.save()
+                        pr = PlayerResult.objects.filter(date=m, player=p).order_by("-pk").first()
+                        if pr.leader=="エルフ":
+                            if pr.wl == "win":
+                                p.e_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="エルフ").get()
+                                c.win += 1
+                                c.save()
+
+
+                            else:
+                                p.e_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="エルフ").get()
+                                c.lose += 1
+                                c.save()
+
+
+                        elif pr.leader == "ネメシス":
+                            if pr.wl == "win":
+                                p.nm_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ネメシス").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.nm_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ネメシス").get()
+                                c.lose += 1
+                                c.save()
+
+                        elif pr.leader == "ドラゴン":
+                            if pr.wl == "win":
+                                p.d_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ドラゴン").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.d_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ドラゴン").get()
+                                c.lose += 1
+                                c.save()
+
+                        elif pr.leader == "ビショップ":
+                            if pr.wl == "win":
+                                p.b_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ビショップ").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.b_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ビショップ").get()
+                                c.lose += 1
+                                c.save()
+
+                        elif pr.leader == "ロイヤル":
+                            if pr.wl == "win":
+                                p.r_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ロイヤル").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.r_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ロイヤル").get()
+                                c.lose += 1
+                                c.save()
+
+                        elif pr.leader == "ヴァンパイア":
+                            if pr.wl == "win":
+                                p.v_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ヴァンパイア").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.v_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ヴァンパイア").get()
+                                c.lose += 1
+                                c.save()
+
+                        elif pr.leader == "ウィッチ":
+                            if pr.wl == "win":
+                                p.w_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ウィッチ").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.w_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ウィッチ").get()
+                                c.lose += 1
+                                c.save()
+
                         else:
-                            p.e_lose += 1
-                            p.save()
-                    elif pr.leader == "ネメシス":
-                        if pr.wl == "win":
-                            p.nm_win += 1
-                            p.save()
-                        else:
-                            p.nm_lose += 1
-                            p.save()
-                    elif pr.leader == "ドラゴン":
-                        if pr.wl == "win":
-                            p.d_win += 1
-                            p.save()
-                        else:
-                            p.d_lose += 1
-                            p.save()
-                    elif pr.leader == "ビショップ":
-                        if pr.wl == "win":
-                            p.b_win += 1
-                            p.save()
-                        else:
-                            p.b_lose += 1
-                            p.save()
-                    elif pr.leader == "ロイヤル":
-                        if pr.wl == "win":
-                            p.r_win += 1
-                            p.save()
-                        else:
-                            p.r_lose += 1
-                            p.save()
-                    elif pr.leader == "ヴァンパイア":
-                        if pr.wl == "win":
-                            p.v_win += 1
-                            p.save()
-                        else:
-                            p.v_lose += 1
-                            p.save()
-                    elif pr.leader == "ウィッチ":
-                        if pr.wl == "win":
-                            p.w_win += 1
-                            p.save()
-                        else:
-                            p.w_lose += 1
-                            p.save()
-                    else:
-                        if pr.wl == "win":
-                            p.nc_win += 1
-                            p.save()
-                        else:
-                            p.nc_lose += 1
-                            p.save()
+                            if pr.wl == "win":
+                                p.nc_win += 1
+                                p.win += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ネクロマンサー").get()
+                                c.win += 1
+                                c.save()
+
+                            else:
+                                p.nc_lose += 1
+                                p.lose += 1
+                                p.save()
+                                c = ClassWinRate.objects.filter(leader="ネクロマンサー").get()
+                                c.lose += 1
+                                c.save()
+
             except AttributeError:
-                pass
+                    pass
+
+    for c in ClassWinRate.objects.all():
+       try:
+            total = c.win+c.lose
+            c.rate = c.win/total*100
+            c.total = c.win + c.lose
+            c.save()
+
+       except   ZeroDivisionError:
+           pass
+
     return render(request, 'attendance/report_request.html')
 
 def match_result(request):
