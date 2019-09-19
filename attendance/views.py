@@ -492,6 +492,4 @@ def match_result(request):
             dicts[date] = dic
             dic = {}
 
-
-
     return render(request, 'attendance/match_result.html', {'dicts': dicts})
