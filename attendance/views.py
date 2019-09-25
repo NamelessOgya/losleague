@@ -10,9 +10,12 @@ from django.contrib.auth.decorators import login_required
 from django.template.context_processors import csrf
 import threading
 from threading import Thread
-
-from .models import Match, Player, Team, Registerd, Registered, Table, Reported, PlayerResult, TeamResult, ClassWinRate, Blog
+from .models import Match, Player, Team, Registerd, Registered, Table, Reported, PlayerResult, TeamResult, ClassWinRate, Blog, DeckCode
 from django.contrib.auth.mixins import LoginRequiredMixin
+from selenium import webdriver
+from selenium.common.exceptions import *
+from selenium.webdriver.chrome.options import Options
+
 
 def leader():
     return ["エルフ","ロイヤル", "ウィッチ", "ドラゴン", "ヴァンパイア", "ネクロマンサー", "ビショップ", "ネメシス"]
@@ -493,3 +496,213 @@ def match_result(request):
             dic = {}
 
     return render(request, 'attendance/match_result.html', {'dicts': dicts})
+
+def deck_date(request):
+    m = Match.objects.all().filter(register_release=True)
+    dic = {}
+    for x in m:
+        id = x.id
+        d = x.match_date
+        dic[id] = strdate(d)
+
+    context = {'dic': dic}
+    return render(request, 'attendance/deck_date.html', context)
+
+def deck_table(request, date):
+    x = Match.objects.filter(pk=date).get()
+    t = Table.objects.filter(date=x)
+    dict={}
+    for x in t:
+        vs = x.team1.team_name+" vs "+x.team2.team_name
+        dict[x.team1] = vs
+    return render(request, 'attendance/deck_table.html', {"date": date, "dict": dict})
+
+def deck_register(request, team, date):
+    t = Team.objects.filter(team_name=team).get()
+    m = Match.objects.filter(pk=date).get()
+    table = Table.objects.filter(date=m, team1=t).get()
+    team1 = table.team1
+    team2 = table.team2
+    player1 = Registered.objects.filter(date=m, team=team1).get()
+    player2 = Registered.objects.filter(date=m, team=team2).get()
+    list = []
+    for p in [player1.first, player1.second, player1.third, player1.fourth, player1.fifth, player1.hoketsu]:
+        list.append(p)
+    for p in [player2.first, player2.second, player2.third, player2.fourth, player2.fifth, player2.hoketsu]:
+        list.append(p)
+
+    return render(request, "attendance/deck_register.html", {"date": date, "list": list, "team1": team1})
+
+def deck_result(request, date, team1):
+    m = Match.objects.filter(pk=date).get()
+    t = Team.objects.filter(team_name=team1).get()
+    player = Player.objects.filter(player_name=request.GET.get('player')).get()
+    opp = Player.objects.filter(player_name=request.GET.get('opposite')).get()
+    code = request.GET.get('code')
+    table = Table.objects.filter(date=m, team1=t).get()
+
+
+    URL = 'https://shadowverse-portal.com/deckbuilder/classes?lang=jahttps://shadowverse-portal.com/deckbuilder/classes?lang=ja'
+    options = Options()
+    options.add_argument('--headless')
+    driver = webdriver.Chrome(options=options)
+    driver.get(URL)
+    element = driver.find_element_by_id("deckCode")
+    element.send_keys(code)
+    button = driver.find_element_by_link_text("決定")
+    button.click()
+    driver.implicitly_wait(60)
+    cardlist = []
+    countlist = []
+    n = 1
+    while True:
+        try:
+            driver.implicitly_wait(10)
+            card = '/html/body/div/div[1]/div[3]/div[2]/div/div[2]/div/div[4]/div[3]/div[2]/ul/li[' + str(
+                n) + ']/div/p[3]/span'
+            count = '/html/body/div/div[1]/div[3]/div[2]/div/div[2]/div/div[4]/div[3]/div[2]/ul/li[' + str(
+                n) + ']/div/span'
+            card = driver.find_element_by_xpath(card)
+            count = driver.find_element_by_xpath(count)
+            cardlist.append(card.text)
+            countlist.append(count.text)
+            n += 1
+            if n == 31:
+                break
+        except NoSuchElementException:
+            cardlist.append("")
+            countlist.append("")
+            n += 1
+            if n == 31:
+                break
+    card1= cardlist[0]
+    card2= cardlist[1]
+    card3= cardlist[2]
+    card4= cardlist[3]
+    card5= cardlist[4]
+    card6= cardlist[5]
+    card7= cardlist[6]
+    card8= cardlist[7]
+    card9= cardlist[8]
+    card10= cardlist[9]
+    card11= cardlist[10]
+    card12= cardlist[11]
+    card13= cardlist[12]
+    card14= cardlist[13]
+    card15= cardlist[14]
+    card16= cardlist[15]
+    card17= cardlist[16]
+    card18= cardlist[17]
+    card19= cardlist[18]
+    card20= cardlist[19]
+    card21= cardlist[20]
+    card22= cardlist[21]
+    card23= cardlist[22]
+    card24= cardlist[23]
+    card25= cardlist[24]
+    card26= cardlist[25]
+    card27= cardlist[26]
+    card28= cardlist[27]
+    card29= cardlist[28]
+    card30= cardlist[29]
+
+    cost1= countlist[0]
+    cost2= countlist[1]
+    cost3= countlist[2]
+    cost4= countlist[3]
+    cost5= countlist[4]
+    cost6= countlist[5]
+    cost7= countlist[6]
+    cost8= countlist[7]
+    cost9= countlist[8]
+    cost10= countlist[9]
+    cost11= countlist[10]
+    cost12= countlist[11]
+    cost13= countlist[12]
+    cost14= countlist[13]
+    cost15= countlist[14]
+    cost16= countlist[15]
+    cost17= countlist[16]
+    cost18= countlist[17]
+    cost19= countlist[18]
+    cost20= countlist[19]
+    cost21= countlist[20]
+    cost22= countlist[21]
+    cost23= countlist[22]
+    cost24= countlist[23]
+    cost25= countlist[24]
+    cost26= countlist[25]
+    cost27= countlist[26]
+    cost28= countlist[27]
+    cost29= countlist[28]
+    cost30= countlist[29]
+
+    DeckCode.objects.create(
+        table=table,
+        player_name=player,
+        op_name=opp,
+        card1=card1,
+        card2=card2,
+        card3=card3,
+        card4=card4,
+        card5=card5,
+        card6=card6,
+        card7=card7,
+        card8=card8,
+        card9=card9,
+        card10=card10,
+        card11=card11,
+        card12=card12,
+        card13=card13,
+        card14=card14,
+        card15=card15,
+        card16=card16,
+        card17=card17,
+        card18=card18,
+        card19=card19,
+        card20=card20,
+        card21=card21,
+        card22=card22,
+        card23=card23,
+        card24=card24,
+        card25=card25,
+        card26=card26,
+        card27=card27,
+        card28=card28,
+        card29=card29,
+        card30=card30,
+
+        cost1=cost1,
+        cost2=cost2,
+        cost3=cost3,
+        cost4=cost4,
+        cost5=cost5,
+        cost6=cost6,
+        cost7=cost7,
+        cost8=cost8,
+        cost9=cost9,
+        cost10=cost10,
+        cost11=cost11,
+        cost12=cost12,
+        cost13=cost13,
+        cost14=cost14,
+        cost15=cost15,
+        cost16=cost16,
+        cost17=cost17,
+        cost18=cost18,
+        cost19=cost19,
+        cost20=cost20,
+        cost21=cost21,
+        cost22=cost22,
+        cost23=cost23,
+        cost24=cost24,
+        cost25=cost25,
+        cost26=cost26,
+        cost27=cost27,
+        cost28=cost28,
+        cost29=cost29,
+        cost30=cost30
+
+    )
+    driver.quit()
+    return render(request, "attendance/deck_result.html")

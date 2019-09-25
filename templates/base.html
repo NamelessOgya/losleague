@@ -16,23 +16,29 @@
                         <img src = "{% static 'los/logo.png' %}" class="logo">
                     </div>
                     <div class = "login" onclick = "location.href=' /schedul'">
-                        <p>schedule</p>
+                        <p class = "headercont">schedule</p>
                     </div>
                     <div class = "login" onclick = "location.href=' /attendance/match_result'">
-                        <p>試合結果</p>
+                        <p class = "headercont">試合結果</p>
                     </div>
                     <div class = "login" onclick = "location.href=' /attendance/match_list'">
-                        <p>対戦表</p>
+                        <p class = "headercont">対戦表</p>
                     </div>
                     <div class = "login" onclick = "location.href='/accounts/login'">
-                        <p>login</p>
+                        <p class = "headercont">login</p>
                     </div>
+                    <div class = "login" onclick = "location.href='/attendance/deck_date'">
+                        <p class = "headercont">個人登録</p>
+                    </div>
+
 
                 </header>
 
 
                     {% block content %}
+
                     {% endblock %}
+        </div>
 
                                 <footer>
                                     <div class = "footerbox" onclick = "location.href = 'https://twitter.com/LOSleague'">
@@ -42,6 +48,7 @@
                                         <p>youtube</p>
                                     </div>
                                 </footer>
-        </div>
+
+
 
     </body>

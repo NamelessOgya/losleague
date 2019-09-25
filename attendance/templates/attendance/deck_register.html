@@ -1,0 +1,41 @@
+<html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class = "box">
+    <div class = "tytlebox">
+        <p>登録</p>
+    </div>
+    <div class = "contentbox">
+
+<form action="/attendance/{{　date　}}/{{ team1 }}/deck_result" methon="post">
+    {% csrf_token %}
+    <div>
+        <label>プレイヤーネーム</label>
+        <select name="player" value="">
+            {% for member in list %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        <label>相手の名前</label>
+        <select name="opposite" value="">
+            {% for member in list %}
+            <option value = {{member}}>{{ member }}</option>
+            {% endfor %}}
+        </select>
+    </div>
+    <div>
+        デッキコード：<input type="text" name="code" size="40">
+    </div>
+     <input type="submit" value="送信">
+</form>
+    </div>
+            </div>
+
+
+
+{% endblock %}
+</html>
