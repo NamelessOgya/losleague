@@ -1,8 +1,6 @@
-*.pyc
-*~
+<your_venv>
 __pycache__
-myvenv
-db.sqlite3
-#/static
-.DS_Store
+staticfiles
 local_settings.py
+db.sqlite3
+*.py[co]
