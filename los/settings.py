@@ -117,9 +117,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ja'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 
@@ -184,13 +184,6 @@ else:
     # DB設定
     import dj_database_url
 
-    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-    db_from_env = dj_database_url.config()
-    DATABASES = {
-        'default': dj_database_url.config()
-    }
-    ALLOWED_HOSTS = ['*']
-    import dj_database_url
     PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
     db_from_env = dj_database_url.config()
     DATABASES = {
