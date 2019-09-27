@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-import dj_database_url
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -22,8 +21,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = '79qzfqu5fx(v)wur$-%rutqql@hj48uu^*j44@=zo_)ovtf0*q'
+# SECURITY WARNING: don't run with debug turned on in productio
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
+
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
@@ -152,7 +154,7 @@ except ImportError:
     pass
 
 if not DEBUG:
-    SECRET_KEY = os.environ['79qzfqu5fx(v)wur$-%rutqql@hj48uu^*j44@=zo_)ovtf0*q']
+    SECRET_KEY = os.environ['SECRET_KEY']
     import django_heroku  # 追加
     django_heroku.settings(locals())  # 追加
 
