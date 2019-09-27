@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import dj_database_url
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -21,10 +22,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '79qzfqu5fx(v)wur$-%rutqql@hj48uu^*j44@=zo_)ovtf0*q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -89,8 +89,12 @@ DATABASES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'name',
+        'USER': 'user',
+        'PASSWORD': '',
+        'HOST': 'host',
+        'PORT': '',
     }
 }
 
@@ -142,52 +146,15 @@ LOGIN_REDIRECT_URL = '/attendance/user/'
 LOGOUT_REDIRECT_URL = '/logout'
 
 #heroku設定
-#この上は省略してあります
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'kiite/static')
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
-from socket import gethostname
-hostname = gethostname()
+if not DEBUG:
+    SECRET_KEY = os.environ['79qzfqu5fx(v)wur$-%rutqql@hj48uu^*j44@=zo_)ovtf0*q']
+    import django_heroku  # 追加
+    django_heroku.settings(locals())  # 追加
 
-if "apple" in hostname:
-    # デバッグ環境
-    DEBUG = True
-#=====ここから...=====
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
-
-#=====...ここまでは、使用しているデータベースに置き換えてください。=====
-    ALLOWED_HOSTS = []
-else:
-    # 本番環境
-    DEBUG = True
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
-            },
-        },
-    }
-
-    # DB設定
-    import dj_database_url
-
-    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-    db_from_env = dj_database_url.config()
-    DATABASES = {
-        'default': dj_database_url.config()
-    }
-    ALLOWED_HOSTS = ['*']
-#この下には何もありません
+db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
+DATABASES['default'].update(db_from_env)
